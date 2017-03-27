@@ -26,6 +26,7 @@ public class AddRepositoryRequest {
     private String branch;
     @ApiModelProperty(
         dataType = "HEX string",
+        example = "0ece1608f4f2c7db1bc9f0562b0fd744324a3395",
         notes = "Can not be used without 'branch'. Default is last commit",
         position = 2)
     private String commitHash;
