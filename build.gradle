@@ -1,0 +1,80 @@
+group 'com.aurea.caonb.egizatullin'
+version '1.0-SNAPSHOT'
+
+buildscript {
+    repositories {
+        maven {
+            url "https://plugins.gradle.org/m2/"
+        }
+    }
+    dependencies {
+        classpath "gradle.plugin.com.palantir.gradle.docker:gradle-docker:0.12.0"
+    }
+}
+
+
+apply plugin: 'java'
+
+
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    compile group: 'org.apache.commons', name: 'commons-lang3', version: '3.5'
+    compile group: 'org.apache.commons', name: 'commons-compress', version: '1.13'
+
+    compile group: 'org.slf4j', name: 'slf4j-api', version: '1.7.25'
+    compile group: 'org.slf4j', name: 'slf4j-ext', version: '1.7.25'
+    compile group: 'org.slf4j', name: 'jul-to-slf4j', version: '1.7.25'
+    compile group: 'org.slf4j', name: 'jcl-over-slf4j', version: '1.7.25'
+    compile group: 'org.jboss.logging', name: 'jboss-logging', version: '3.3.0.Final'
+
+    compile group: 'com.fasterxml.jackson.core', name: 'jackson-annotations', version: '2.8.5'
+    compile group: 'com.fasterxml.jackson.core', name: 'jackson-core', version: '2.8.5'
+    compile group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.8.5'
+    compile group: 'com.fasterxml.jackson.dataformat', name: 'jackson-dataformat-yaml', version: '2.8.5'
+
+    compile group: 'io.swagger', name: 'swagger-core', version: '1.5.10'
+    compile group: 'io.springfox', name: 'springfox-swagger2', version: '2.6.1'
+    compile group: 'io.springfox', name: 'springfox-swagger-ui', version: '2.6.1'
+    compile group: 'org.springframework', name: 'spring-webmvc', version: '4.3.7.RELEASE'
+    compile group: 'org.springframework.boot', name: 'spring-boot-starter', version: '1.5.2.RELEASE'
+    compile group: 'org.springframework.boot', name: 'spring-boot-starter-jetty', version: '1.5.2.RELEASE'
+
+    compile group: 'org.hibernate', name: 'hibernate-validator', version: '5.4.1.Final'
+
+
+    testCompile group: 'junit', name: 'junit', version: '4.12'
+}
+
+tasks.withType(JavaCompile) {
+    //enable incremental compilation
+    options.incremental = true
+}
+
+
+jar {// all-in-one
+    manifest {
+        attributes 'Implementation-Title': 'egizatullin onboarding test',
+                'Implementation-Version': version,
+                'Main-Class': 'com.aurea.caonb.egizatullin.Application'
+    }
+
+    exclude '.gitkeep',
+            'about.html',
+            'META-INF/*.RSA',
+            'META-INF/*.SF',
+            'META-INF/DEPENDENCIES',
+            'META-INF/LICENSE',
+            'META-INF/NOTICE',
+            'META-INF/INDEX.LIST',
+            'META-INF/*.txt'
+
+    from {
+        configurations.compile.collect { it.isDirectory() ? it : zipTree(it) }
+    }
+}
