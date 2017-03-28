@@ -92,11 +92,11 @@ public class RepositoryController extends AbstractController {
             }
 
             AddRepositoryResult arr = repositoryDao.addRepository(owner, repo, branch, commitHash);
-            processingService.process(arr.repository);
             Repository r = arr.repository;
 
             long lastModified = r.history.get(r.history.size() - 1).date.getTime();
             if (!arr.exists) {
+                processingService.process(arr.repository);
                 return status(HTTP_OK).lastModified(lastModified).body(
                     new AddRepositoryResponse(null, r));
             } else {

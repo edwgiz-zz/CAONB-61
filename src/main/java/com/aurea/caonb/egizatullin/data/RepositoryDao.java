@@ -50,7 +50,8 @@ public class RepositoryDao {
         repositories.computeIfPresent(key, (k, old) -> {
             RepositoryState oldState = old.history.get(old.history.size() - 1).state;
             if (oldState.ordinal() > state.ordinal()) {
-                throw new RuntimeException("Can't change state from " + oldState + " to " + state);
+                throw new IllegalStateException(
+                    "Can't change state from " + oldState + " to " + state);
             }
             List<RepositoryHistoryItem> his = new ArrayList<>();
             his.addAll(old.history);

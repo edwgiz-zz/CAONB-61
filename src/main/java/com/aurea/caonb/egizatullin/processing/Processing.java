@@ -1,14 +1,23 @@
 package com.aurea.caonb.egizatullin.processing;
 
 
+import static com.aurea.caonb.egizatullin.und.commons.CodeInspectionType.UNUSED_FIELD;
+import static com.aurea.caonb.egizatullin.und.commons.CodeInspectionType.UNUSED_METHOD;
+import static com.aurea.caonb.egizatullin.und.commons.CodeInspectionType.UNUSED_PARAMETER;
 import static org.slf4j.LoggerFactory.getLogger;
 
 import com.aurea.caonb.egizatullin.data.Repository;
 import com.aurea.caonb.egizatullin.data.RepositoryDao;
 import com.aurea.caonb.egizatullin.data.RepositoryState;
 import com.aurea.caonb.egizatullin.data.RepositoryUniqueKey;
+import com.aurea.caonb.egizatullin.und.UndService;
+import com.aurea.caonb.egizatullin.und.commons.ICodeInspectionCallback;
 import com.aurea.caonb.egizatullin.utils.github.GithubService;
 import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import org.slf4j.Logger;
 
 class Processing implements Runnable {
@@ -18,25 +27,25 @@ class Processing implements Runnable {
     private final GithubService githubService;
     private final RepositoryDao repositoryDao;
     private final Repository r;
+    private final UndService undService;
 
     Processing(
         GithubService githubService,
         RepositoryDao repositoryDao,
-        Repository r
-    ) {
+        Repository r,
+        UndService undService) {
         this.repositoryDao = repositoryDao;
-        this.r = r;
         this.githubService = githubService;
+        this.r = r;
+        this.undService = undService;
     }
 
     @Override
     public void run() {
         RepositoryUniqueKey ruk = new RepositoryUniqueKey(r.owner, r.repo, r.commitHash);
-
-        repositoryDao.changeState(ruk, RepositoryState.PROCESSING, null);
         try {
-            process();
-
+            repositoryDao.changeState(ruk, RepositoryState.PROCESSING, null);
+            ArrayList<CodeInspectionItem> inspectionItems = process();
             repositoryDao.changeState(ruk, RepositoryState.COMPLETED, null);
         } catch (Exception ex) {
             repositoryDao.changeState(ruk, RepositoryState.FAILED, ex.getMessage());
@@ -44,10 +53,22 @@ class Processing implements Runnable {
         }
     }
 
-    private void process() {
-        Path gitLocalDir = githubService.download(r.owner, r.repo, r.commitHash);
-        if(LOG.isInfoEnabled()) {
-            LOG.info("Guthub downloading completed: " + gitLocalDir);
+    ArrayList<CodeInspectionItem> process() {
+        Path projectDir = githubService.download(r.owner, r.repo, r.commitHash);
+        if (LOG.isInfoEnabled()) {
+            LOG.info("Guthub downloading completed: " + projectDir);
         }
+
+        undService.buildDatabase(projectDir);
+        LOG.info("'Understand' database building completed");
+        ArrayList<CodeInspectionItem> inspectionItems = new ArrayList<>();
+        int projectDirDepth = projectDir.getNameCount();
+        undService.inspectCode(projectDir, Arrays.asList(
+            new CodeInspectionCollector(projectDirDepth, UNUSED_METHOD, inspectionItems),
+            new CodeInspectionCollector(projectDirDepth, UNUSED_FIELD, inspectionItems),
+            new CodeInspectionCollector(projectDirDepth, UNUSED_PARAMETER, inspectionItems)
+        ));
+        LOG.info("'Understand' code inspection completed");
+        return inspectionItems;
     }
 }

@@ -29,4 +29,15 @@ public class Repository {
         this.commitHash = commitHash;
         this.history = history;
     }
+
+    @Override
+    public String toString() {
+        return "Repository{" +
+            "id=" + id +
+            ", owner='" + owner + '\'' +
+            ", repo='" + repo + '\'' +
+            ", branch='" + branch + '\'' +
+            ", commitHash='" + commitHash + '\'' +
+            '}';
+    }
 }

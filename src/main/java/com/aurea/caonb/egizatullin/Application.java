@@ -3,6 +3,7 @@ package com.aurea.caonb.egizatullin;
 import com.aurea.caonb.egizatullin.controllers.impls.RepositoryController;
 import com.aurea.caonb.egizatullin.data.RepositoryDao;
 import com.aurea.caonb.egizatullin.processing.ProcessingService;
+import com.aurea.caonb.egizatullin.und.UndService;
 import com.aurea.caonb.egizatullin.utils.github.GithubService;
 import com.aurea.caonb.egizatullin.utils.servlet.SimpleCORSFilter;
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -10,8 +11,13 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.google.common.base.Predicates;
+import org.eclipse.jetty.server.Server;
+import org.eclipse.jetty.util.thread.QueuedThreadPool;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.context.embedded.jetty.JettyEmbeddedServletContainerFactory;
+import org.springframework.boot.context.embedded.jetty.JettyServerCustomizer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Primary;
@@ -31,7 +37,8 @@ import springfox.documentation.swagger2.annotations.EnableSwagger2;
     RepositoryController.class,
     SimpleCORSFilter.class,
     ProcessingService.class,
-    GithubService.class
+    GithubService.class,
+    UndService.class
 })
 public class Application {
     public static void main(String[] args) {
@@ -69,5 +76,22 @@ public class Application {
             .licenseUrl("https://github.com/springfox/springfox/blob/master/LICENSE")
             .version("1.0")
             .build();
+    }
+
+    @Bean
+    public JettyEmbeddedServletContainerFactory jettyEmbeddedServletContainerFactory(
+        @Value("${app.http.port}") final int port,
+        @Value("${app.http.threadPool.maxThreads}") final int maxThreads,
+        @Value("${app.http.threadPool.minThreads}") final int minThreads,
+        @Value("${app.http.threadPool.idleTimeout}") final int idleTimeout) {
+        final JettyEmbeddedServletContainerFactory f =  new JettyEmbeddedServletContainerFactory(port);
+        f.addServerCustomizers((JettyServerCustomizer) server -> {
+            // Tweak the connection pool used by Jetty to handle incoming HTTP connections
+            final QueuedThreadPool threadPool = server.getBean(QueuedThreadPool.class);
+            threadPool.setMaxThreads(maxThreads);
+            threadPool.setMinThreads(minThreads);
+            threadPool.setIdleTimeout(idleTimeout);
+        });
+        return f;
     }
 }
