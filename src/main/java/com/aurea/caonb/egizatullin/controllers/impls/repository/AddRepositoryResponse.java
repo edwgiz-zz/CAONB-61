@@ -1,4 +1,4 @@
-package com.aurea.caonb.egizatullin.controllers.impls;
+package com.aurea.caonb.egizatullin.controllers.impls.repository;
 
 import com.aurea.caonb.egizatullin.controllers.commons.AbstractResponse;
 import com.aurea.caonb.egizatullin.data.Repository;

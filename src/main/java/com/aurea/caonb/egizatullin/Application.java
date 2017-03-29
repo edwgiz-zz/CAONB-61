@@ -1,6 +1,7 @@
 package com.aurea.caonb.egizatullin;
 
-import com.aurea.caonb.egizatullin.controllers.impls.RepositoryController;
+import com.aurea.caonb.egizatullin.controllers.impls.inspection.InspectionController;
+import com.aurea.caonb.egizatullin.controllers.impls.repository.RepositoryController;
 import com.aurea.caonb.egizatullin.data.RepositoryDao;
 import com.aurea.caonb.egizatullin.processing.ProcessingService;
 import com.aurea.caonb.egizatullin.und.UndService;
@@ -11,7 +12,6 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.google.common.base.Predicates;
-import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.util.thread.QueuedThreadPool;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
@@ -35,6 +35,7 @@ import springfox.documentation.swagger2.annotations.EnableSwagger2;
 @ComponentScan(basePackageClasses = {
     RepositoryDao.class,
     RepositoryController.class,
+    InspectionController.class,
     SimpleCORSFilter.class,
     ProcessingService.class,
     GithubService.class,

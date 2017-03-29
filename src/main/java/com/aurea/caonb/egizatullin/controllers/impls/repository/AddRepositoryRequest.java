@@ -1,4 +1,4 @@
-package com.aurea.caonb.egizatullin.controllers.impls;
+package com.aurea.caonb.egizatullin.controllers.impls.repository;
 
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;

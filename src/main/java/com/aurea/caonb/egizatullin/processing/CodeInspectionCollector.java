@@ -32,7 +32,8 @@ public class CodeInspectionCollector implements ICodeInspectionCallback {
         filename = Paths.get(filename)
             .subpath(projectPathDepth,
                 Paths.get(filename).getNameCount())
-            .toString();
+            .toString()
+            .replace('\\', '/');// to unix relative path
 
         inspectionItems.add(new CodeInspectionItem(
             getCodeInspectionType(),

@@ -2,8 +2,8 @@ package com.aurea.caonb.egizatullin.processing;
 
 
 import static java.util.concurrent.TimeUnit.MINUTES;
-import static org.slf4j.LoggerFactory.getLogger;
 
+import com.aurea.caonb.egizatullin.data.InspectionDao;
 import com.aurea.caonb.egizatullin.data.Repository;
 import com.aurea.caonb.egizatullin.data.RepositoryDao;
 import com.aurea.caonb.egizatullin.und.UndService;
@@ -15,7 +15,6 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
-import org.slf4j.Logger;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,6 +27,7 @@ public class ProcessingService implements InitializingBean, DisposableBean {
 
     private final GithubService githubService;
     private final RepositoryDao repositoryDao;
+    private final InspectionDao inspectionDao;
     private final UndService undService;
     private final ExecutorService executorService;
 
@@ -36,11 +36,12 @@ public class ProcessingService implements InitializingBean, DisposableBean {
     public ProcessingService(
         GithubService githubService,
         RepositoryDao repositoryDao,
+        InspectionDao inspectionDao,
         UndService undService,
-        @Value("${app.http.threadPool.maxThreads}") int queueSize
-    ) {
+        @Value("${app.http.threadPool.maxThreads}") int queueSize) {
         this.githubService = githubService;
         this.repositoryDao = repositoryDao;
+        this.inspectionDao = inspectionDao;
         this.undService = undService;
         executorService = new ThreadPoolExecutor(
             1, 1,
@@ -69,6 +70,7 @@ public class ProcessingService implements InitializingBean, DisposableBean {
     }
 
     public void process(Repository r) {
-        executorService.submit(new Processing(githubService, repositoryDao, r, undService));
+        executorService.submit(new Processing(githubService, repositoryDao,
+            inspectionDao, r, undService));
     }
 }

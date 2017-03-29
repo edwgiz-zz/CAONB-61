@@ -1,4 +1,4 @@
-package com.aurea.caonb.egizatullin.controllers.impls;
+package com.aurea.caonb.egizatullin.controllers.impls.repository;
 
 import static java.net.HttpURLConnection.HTTP_BAD_REQUEST;
 import static java.net.HttpURLConnection.HTTP_INTERNAL_ERROR;
@@ -28,6 +28,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
+@RequestMapping(value = "/repositories", produces = "application/json")
 public class RepositoryController extends AbstractController {
 
     private static final Pattern BRANCH_ANTI_PATTERN = Pattern.compile("\\s");
@@ -56,7 +57,7 @@ public class RepositoryController extends AbstractController {
         @ApiResponse(code = HTTP_OK, message = "Nice!", response = AddRepositoryResponse.class),
         @ApiResponse(code = HTTP_BAD_REQUEST, message = "Bad request", response = AddRepositoryResponse.class),
         @ApiResponse(code = HTTP_INTERNAL_ERROR, message = HTTP_INTERNAL_ERROR_MESSAGE, response = AbstractResponse.class)})
-    @RequestMapping(value = "/repositories", method = RequestMethod.POST, produces = "application/json", consumes = "application/json")
+    @RequestMapping(method = RequestMethod.POST, consumes = "application/json")
     public ResponseEntity<AddRepositoryResponse> addRepository(
         @ApiParam(value = "Reference to Github", required = true)
         @RequestBody AddRepositoryRequest req)  {
@@ -120,7 +121,7 @@ public class RepositoryController extends AbstractController {
     @ApiResponses({
         @ApiResponse(code = HTTP_OK, message = "Nice!", response = Repository[].class)
     })
-    @RequestMapping(value = "/repositories", method = RequestMethod.GET, produces = "application/json")
+    @RequestMapping(method = RequestMethod.GET)
     public ResponseEntity<List<Repository>> list() {
         return status(HTTP_OK).body(repositoryDao.getAll());
     }

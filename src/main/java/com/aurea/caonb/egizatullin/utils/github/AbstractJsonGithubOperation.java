@@ -7,7 +7,7 @@ import java.net.HttpURLConnection;
 
 abstract class AbstractJsonGithubOperation<T> extends AbstractGithubOperation {
 
-    private static final ObjectMapper JSON_PARSER = new ObjectMapper();
+    private static final ObjectMapper JSON = new ObjectMapper();
 
     private final Class<T> responseClass;
     private T response;
@@ -21,7 +21,7 @@ abstract class AbstractJsonGithubOperation<T> extends AbstractGithubOperation {
     @Override
     void onResponse(HttpURLConnection c) throws IOException {
         InputStream is = c.getInputStream();
-        response = JSON_PARSER.readValue(is, responseClass);
+        response = JSON.readValue(is, responseClass);
     }
 
     T getResponse() {
