@@ -11,19 +11,21 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
+import org.junit.Ignore;
 import org.junit.Test;
 
 public class UndServiceTest {
 
     @Test
+    @Ignore
     public void testCreate() throws Exception {
         Path p = Paths.get("e:/workdir/github/apache-poi-925f4b8");
         UndService s = new UndService("c:/Program Files/SciTools/bin/pc-win64/und.exe");
         s.buildDatabase(p);
     }
 
-
     @Test
+    @Ignore
     public void testCodeChesk() throws Exception {
         UndService s = new UndService("c:/Program Files/SciTools/bin/pc-win64/und.exe");
         Path p = Paths.get("e:/workdir/github/edwgiz-CAONB-61-0ece160");
@@ -38,6 +40,4 @@ public class UndServiceTest {
             s.inspectCode(p, cics);
         }
     }
-
-
 }

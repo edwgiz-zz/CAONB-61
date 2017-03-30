@@ -8,13 +8,10 @@ buildscript {
             dirs '.m2'
         }
     }
-    dependencies {
-        classpath "gradle.plugin.com.palantir.gradle.docker:gradle-docker:0.12.0"
-    }
 }
 
 plugins {
-    id 'org.springframework.boot' version '1.5.2.RELEASE'
+    id 'org.springframework.boot' version '1.5.2.RELEASE' // http://docs.spring.io/spring-boot/docs/current/reference/html/build-tool-plugins-gradle-plugin.html
     id 'java'
 }
 
@@ -55,6 +52,7 @@ dependencies {
 
     compile files('.m2/com/scitools/understand/Understand.jar')
 
+    testCompile group: 'org.mockito', name: 'mockito-core', version: '2.7.18'
     testCompile group: 'junit', name: 'junit', version: '4.12'
 }
 
@@ -62,7 +60,6 @@ tasks.withType(JavaCompile) {
     //enable incremental compilation
     options.incremental = true
 }
-
 
 jar {
     manifest {
@@ -80,4 +77,10 @@ jar {
             'META-INF/NOTICE',
             'META-INF/INDEX.LIST',
             'META-INF/*.txt'
+}
+
+task buildDockerImage(dependsOn: bootRepackage) {
+    doLast {
+        file("${rootDir}/build/libs/${project.name}-${project.version}.jar").renameTo("${rootDir}/docker/api.jar")
+    }
 }

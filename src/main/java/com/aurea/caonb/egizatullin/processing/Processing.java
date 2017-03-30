@@ -32,8 +32,7 @@ class Processing implements Runnable {
         GithubService githubService,
         RepositoryDao repositoryDao,
         InspectionDao inspectionDao,
-        Repository r,
-        UndService undService) {
+        UndService undService, Repository r) {
         this.repositoryDao = repositoryDao;
         this.githubService = githubService;
         this.inspectionDao = inspectionDao;
@@ -49,9 +48,9 @@ class Processing implements Runnable {
             ArrayList<CodeInspectionItem> inspectionItems = inspectCode();
             inspectionDao.addInspections(r.id, inspectionItems);
             repositoryDao.changeState(ruk, RepositoryState.COMPLETED, null);
-        } catch (Exception ex) {
-            repositoryDao.changeState(ruk, RepositoryState.FAILED, ex.getMessage());
+        } catch (Throwable ex) {
             LOG.error(ex.getMessage(), ex);
+            repositoryDao.changeState(ruk, RepositoryState.FAILED, ex.getMessage());
         }
     }
 
@@ -71,6 +70,8 @@ class Processing implements Runnable {
             new CodeInspectionCollector(projectDirDepth, UNUSED_PARAMETER, inspectionItems)
         ));
         LOG.info("'Understand' code inspection completed");
+
+        githubService.remove(projectDir);
         return inspectionItems;
     }
 }

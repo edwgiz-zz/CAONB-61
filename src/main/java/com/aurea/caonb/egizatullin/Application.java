@@ -81,17 +81,21 @@ public class Application {
 
     @Bean
     public JettyEmbeddedServletContainerFactory jettyEmbeddedServletContainerFactory(
-        @Value("${app.http.port}") final int port,
-        @Value("${app.http.threadPool.maxThreads}") final int maxThreads,
-        @Value("${app.http.threadPool.minThreads}") final int minThreads,
-        @Value("${app.http.threadPool.idleTimeout}") final int idleTimeout) {
-        final JettyEmbeddedServletContainerFactory f =  new JettyEmbeddedServletContainerFactory(port);
-        f.addServerCustomizers((JettyServerCustomizer) server -> {
-            // Tweak the connection pool used by Jetty to handle incoming HTTP connections
-            final QueuedThreadPool threadPool = server.getBean(QueuedThreadPool.class);
-            threadPool.setMaxThreads(maxThreads);
-            threadPool.setMinThreads(minThreads);
-            threadPool.setIdleTimeout(idleTimeout);
+        @Value("${app.http.port}") int port,
+        @Value("${app.http.acceptors}") int acceptors,
+        @Value("${app.http.selectors}") int selectors,
+        @Value("${app.http.threadPool.maxThreads}") int maxThreads,
+        @Value("${app.http.threadPool.minThreads}") int minThreads,
+        @Value("${app.http.threadPool.idleTimeout}") int idleTimeout) {
+        JettyEmbeddedServletContainerFactory f = new JettyEmbeddedServletContainerFactory(port);
+        f.setSelectors(selectors);
+        f.setAcceptors(acceptors);
+        f.addServerCustomizers((JettyServerCustomizer) s -> {
+            QueuedThreadPool qtp = s.getBean(QueuedThreadPool.class);
+            qtp.setName("http");
+            qtp.setMaxThreads(maxThreads + acceptors + selectors);
+            qtp.setMinThreads(minThreads + acceptors + selectors);
+            qtp.setIdleTimeout(idleTimeout);
         });
         return f;
     }

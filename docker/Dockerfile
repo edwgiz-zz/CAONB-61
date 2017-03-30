@@ -30,11 +30,15 @@ RUN mv scitools und
 ENV PATH $PATH:/usr/lib/scitools/und/bin/linux64:/usr/lib/scitools/und/bin/linux64/Java
 RUN apt-get install -y libglib2.0-0 libxtst6 libxrender1 libxi6
 RUN echo '* 3A82C9D4EA7F # any' > /usr/lib/scitools/und/conf/license/users.txt
-
-# Clean up
-RUN apt-get remove -y wget
-RUN apt-get autoremove -y
-
+RUN rm -rf /usr/lib/scitools/und/doc && \
+    rm -rf /usr/lib/scitools/und/scripts && \
+    rm -rf /usr/lib/scitools/und/bin/linux64/buildspy && \
+    rm -rf /usr/lib/scitools/und/bin/linux64/C && \
+    rm -rf /usr/lib/scitools/und/bin/linux64/Python && \
+    rm -rf /usr/lib/scitools/und/bin/linux64/Plugins && \
+    rm /usr/lib/scitools/und/bin/linux64/licenseserver* && \
+    rm /usr/lib/scitools/und/bin/linux64/understand* && \
+    rm /usr/lib/scitools/und/bin/linux64/uperl*
 
 RUN mkdir /app
 RUN mkdir /app/workdir
@@ -43,10 +47,16 @@ WORKDIR /app
 
 COPY api.jar .
 
-EXPOSE 8080
+EXPOSE 22 80 17963
 
 ENTRYPOINT ["java", \
   "-server", \
+  "-Dcom.sun.management.jmxremote", \
+  "-Dcom.sun.management.jmxremote.port=17963", \
+  "-Dcom.sun.management.jmxremote.ssl=false", \
+  "-Dcom.sun.management.jmxremote.authenticate=false", \
+  "-Djava.rmi.server.hostname=webserver.devfactory.com", \
+  "-Dcom.sun.management.jmxremote.rmi.port=17963", \
   "-Dapp.workdir=/app/workdir", \
   "-Dscitools.und.exe.path=/usr/lib/scitools/und/bin/linux64/und", \
   "-jar", "api.jar"]

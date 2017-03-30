@@ -3,8 +3,8 @@ package com.aurea.caonb.egizatullin.controllers.impls.repository;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 
-@ApiModel(description = "Reference to github repository. "
-    + "Corresponds to url: https://api.github.com/repos/<owner>/<repo>")
+@ApiModel(description = "Reference to github repository."
+    + "Corresponds to url: https://github.com/<owner>/<repo>")
 public class AddRepositoryRequest {
 
     @ApiModelProperty(

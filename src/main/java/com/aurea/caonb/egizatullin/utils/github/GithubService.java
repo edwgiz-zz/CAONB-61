@@ -77,9 +77,7 @@ public class GithubService {
                         Path dst = worktreeBaseDir.resolve(te.getName());
                         if (te.isDirectory()) {
                             if (root == null) {
-                                if (Files.exists(dst)) {
-                                    Files.walkFileTree(dst, new RecursiveDeleteFileVisitor());
-                                }
+                                remove(dst);
                                 root = dst;
                             }
                             Files.createDirectory(dst);
@@ -135,5 +133,15 @@ public class GithubService {
             };
         callGithubApi(op);
         return op.getResponse().getCommit().getSha();
+    }
+
+    public void remove(Path projectDir) {
+        if (Files.exists(projectDir)) {
+            try {
+                Files.walkFileTree(projectDir, new RecursiveDeleteFileVisitor());
+            } catch (IOException e) {
+                throw new RuntimeException(e.getMessage(), e);
+            }
+        }
     }
 }

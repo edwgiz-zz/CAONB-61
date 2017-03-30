@@ -71,6 +71,6 @@ public class ProcessingService implements InitializingBean, DisposableBean {
 
     public void process(Repository r) {
         executorService.submit(new Processing(githubService, repositoryDao,
-            inspectionDao, r, undService));
+            inspectionDao, undService, r));
     }
 }

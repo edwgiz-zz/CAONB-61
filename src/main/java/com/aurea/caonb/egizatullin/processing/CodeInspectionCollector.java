@@ -47,4 +47,12 @@ public class CodeInspectionCollector implements ICodeInspectionCallback {
     public CodeInspectionType getCodeInspectionType() {
         return type;
     }
+
+    int getProjectPathDepth() {
+        return projectPathDepth;
+    }
+
+    Collection<CodeInspectionItem> getInspectionItems() {
+        return inspectionItems ;
+    }
 }

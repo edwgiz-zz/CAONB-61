@@ -27,7 +27,7 @@ public class InspectionDaoTest {
             "attrs",
             25, 68));
         byte[] content = d.toGzJson(ii);
-        assertEquals(221, content.length);
+        assertEquals(222, content.length);
     }
 
 }
