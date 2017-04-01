@@ -44,4 +44,8 @@ public class InspectionDao {
     public byte[] getInspections(int repositoryId) {
         return inspectionsByRepository.get(repositoryId);
     }
+
+    void removeInspections(int repositoryId) {
+        inspectionsByRepository.remove(repositoryId);
+    }
 }

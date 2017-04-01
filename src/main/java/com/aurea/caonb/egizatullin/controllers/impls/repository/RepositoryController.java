@@ -22,6 +22,7 @@ import java.util.List;
 import java.util.regex.Pattern;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -60,7 +61,7 @@ public class RepositoryController extends AbstractController {
     @RequestMapping(method = RequestMethod.POST, consumes = "application/json")
     public ResponseEntity<AddRepositoryResponse> addRepository(
         @ApiParam(value = "Reference to Github", required = true)
-        @RequestBody AddRepositoryRequest req)  {
+        @RequestBody AddRepositoryRequest req) {
 
         try {
             String owner = trimToNull(req.getOwner());
@@ -111,6 +112,36 @@ public class RepositoryController extends AbstractController {
 
     private ResponseEntity<AddRepositoryResponse> badAddRequest(String msg) {
         return status(HTTP_BAD_REQUEST).body(new AddRepositoryResponse(msg, null));
+    }
+
+
+    @ApiOperation(
+        value = "Deletes repository in the system",
+        tags = {"github"})
+    @ApiResponses({
+        @ApiResponse(code = HTTP_OK, message = "Nice!", response = DeleteRepositoryResponse.class),
+        @ApiResponse(code = HTTP_BAD_REQUEST, message = "Bad request", response = AbstractResponse.class),
+        @ApiResponse(code = HTTP_INTERNAL_ERROR, message = HTTP_INTERNAL_ERROR_MESSAGE, response = AbstractResponse.class)})
+    @RequestMapping(value = "/{id}", method = RequestMethod.DELETE)
+    public ResponseEntity<DeleteRepositoryResponse> remove(
+        @ApiParam(value = "Identifier of repository ", required = true)
+        @PathVariable("id") String repositoryId) {
+        int id;
+        try {
+            id = Integer.parseInt(repositoryId);
+        } catch (NumberFormatException ex) {
+            return status(HTTP_BAD_REQUEST).body(new DeleteRepositoryResponse(
+                "Incorrect repository id", null));
+        }
+
+        Repository deletedRepo = repositoryDao.remove(id);
+        if (deletedRepo == null) {
+            return status(HTTP_BAD_REQUEST).body(new DeleteRepositoryResponse(
+                "No such repository id", null));
+        } else {
+            return status(HTTP_OK).body(new DeleteRepositoryResponse(
+                null, deletedRepo));
+        }
     }
 
 

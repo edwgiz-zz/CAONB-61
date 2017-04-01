@@ -13,16 +13,22 @@ import java.util.List;
 import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
+import org.springframework.beans.factory.annotation.Autowired;
 
 @org.springframework.stereotype.Repository
 public class RepositoryDao {
 
+    private final InspectionDao inspectionDao;
     private final AtomicInteger idSequence;
     private final ConcurrentHashMap<RepositoryUniqueKey, Repository> repositories;
+    private final ConcurrentHashMap<Integer, RepositoryUniqueKey> repositoryKeys;
 
-    public RepositoryDao() {
+    @Autowired
+    public RepositoryDao(InspectionDao inspectionDao) {
+        this.inspectionDao = inspectionDao;
         idSequence = new AtomicInteger();
         repositories = new ConcurrentHashMap<>();
+        repositoryKeys = new ConcurrentHashMap<>();
     }
 
     /**
@@ -33,18 +39,31 @@ public class RepositoryDao {
      * @return repository instance and flag if it was just created
      */
     public AddRepositoryResult addRepository(String owner, String repo, String branch, String commitHash) {
+        int id = idSequence.getAndIncrement();
         Repository newRepository = new Repository(
-            idSequence.getAndIncrement(),
+            id,
             owner, repo, branch, commitHash,
             unmodifiableList(singletonList(
                 new RepositoryHistoryItem(new Date(), ADDED, null))));
 
+        RepositoryUniqueKey key = new RepositoryUniqueKey(owner, repo, commitHash);
         Repository r = repositories.computeIfAbsent(
-            new RepositoryUniqueKey(owner, repo, commitHash),
+            key,
             k -> newRepository);
-
+        repositoryKeys.put(id, key);
         return new AddRepositoryResult(r, r != newRepository);
     }
+
+
+    public Repository remove(int id) {
+        RepositoryUniqueKey key = repositoryKeys.remove(id);
+        if(key == null) {
+            return null;
+        }
+        inspectionDao.removeInspections(id);
+        return repositories.remove(key);
+    }
+
 
     public void changeState(RepositoryUniqueKey key, RepositoryState state, String message) {
         repositories.computeIfPresent(key, (k, old) -> {
