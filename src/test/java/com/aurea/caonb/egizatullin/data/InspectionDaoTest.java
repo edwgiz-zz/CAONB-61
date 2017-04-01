@@ -26,7 +26,7 @@ public class InspectionDaoTest {
             "src\\main\\java\\com\\aurea\\caonb\\egizatullin\\und\\SourceRootDetectionFileVisitor.java",
             "attrs",
             25, 68));
-        byte[] content = d.toGzJson(ii);
+        byte[] content = d.serialize(ii);
         assertEquals(222, content.length);
     }
 
