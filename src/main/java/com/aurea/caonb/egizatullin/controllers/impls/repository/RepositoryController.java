@@ -26,6 +26,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -146,14 +147,25 @@ public class RepositoryController extends AbstractController {
 
 
     @ApiOperation(
-        value = "List added repositories",
-        notes = "List all repositories that have already been added along with their history.",
+        value = "Lists added repositories",
+        notes = "Lists all repositories that have already been added along with their history."
+            + "Can filters repos by the given substrings of an owner, a repo or a branch",
         tags = {"github"})
     @ApiResponses({
         @ApiResponse(code = HTTP_OK, message = "Nice!", response = Repository[].class)
     })
     @RequestMapping(method = RequestMethod.GET)
-    public ResponseEntity<List<Repository>> list() {
-        return status(HTTP_OK).body(repositoryDao.getAll());
+    public ResponseEntity<List<Repository>> list(
+        @ApiParam(value = "Owner of repository")
+        @RequestParam(name = "owner", required = false) String owner,
+        @ApiParam(value = "Repository name")
+        @RequestParam(name = "repo", required = false) String repo,
+        @ApiParam(value = "Branch of repository")
+        @RequestParam(name = "branch", required = false) String branch
+    ){
+        return status(HTTP_OK).body(repositoryDao.find(
+            trimToNull(owner),
+            trimToNull(repo),
+            trimToNull(branch)));
     }
 }

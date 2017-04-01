@@ -13,6 +13,7 @@ import java.util.List;
 import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Stream;
 import org.springframework.beans.factory.annotation.Autowired;
 
 @org.springframework.stereotype.Repository
@@ -80,9 +81,19 @@ public class RepositoryDao {
         });
     }
 
-    public List<Repository> getAll() {
-        return repositories.entrySet().stream()
-            .map(Entry::getValue)
+    public List<Repository> find(String owner, String repo, String branch) {
+        Stream<Repository> repos = repositories.entrySet().stream()
+            .map(Entry::getValue);
+        if (owner != null) {
+            repos = repos.filter(e -> e.owner.contains(owner));
+        }
+        if (repo != null) {
+            repos = repos.filter(e -> e.repo.contains(repo));
+        }
+        if (branch != null) {
+            repos = repos.filter(e -> e.branch.contains(branch));
+        }
+        return repos
             .sorted(comparing(e -> e.id))
             .collect(toList());
     }
