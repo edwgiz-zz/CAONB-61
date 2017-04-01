@@ -18,9 +18,6 @@ public class UnusedParameterCodeInspection implements ICodeInspection {
             Reference[] refs = ent.refs(null, null, false);
             if (refs.length > 0) {
                 Reference declarationRef = refs[0];
-                if ("ArrayListSupplier.java".equals((declarationRef.file().simplename()))) {
-                    declarationRef = declarationRef;
-                }
                 Entity parent = declarationRef.ent();
                 if (checkingMethods.contains(parent.id())) {
                     boolean isUsed = false;
