@@ -8,7 +8,8 @@ import static java.nio.file.StandardOpenOption.CREATE_NEW;
 
 import com.aurea.caonb.egizatullin.und.commons.ICodeInspectionCallback;
 import com.aurea.caonb.egizatullin.und.inspections.ICodeInspection;
-import com.aurea.caonb.egizatullin.und.inspections.UnusedClassMemberCodeInspection;
+import com.aurea.caonb.egizatullin.und.inspections.UnusedFieldCodeInspection;
+import com.aurea.caonb.egizatullin.und.inspections.UnusedMethodCodeInspection;
 import com.aurea.caonb.egizatullin.und.inspections.UnusedParameterCodeInspection;
 import com.aurea.caonb.egizatullin.utils.process.ProcessUtils;
 import com.scitools.understand.Database;
@@ -86,9 +87,9 @@ public class UndService {
     ICodeInspection getCodeInspection(ICodeInspectionCallback cic) {
         switch (cic.getCodeInspectionType()) {
             case UNUSED_METHOD:
-                return new UnusedClassMemberCodeInspection("Private Method");
+                return new UnusedMethodCodeInspection();
             case UNUSED_FIELD:
-                return new UnusedClassMemberCodeInspection("Private Variable");
+                return new UnusedFieldCodeInspection();
             case UNUSED_PARAMETER:
                 return new UnusedParameterCodeInspection();
             default:
