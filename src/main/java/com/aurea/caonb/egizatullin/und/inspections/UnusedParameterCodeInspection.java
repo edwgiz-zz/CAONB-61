@@ -1,8 +1,5 @@
 package com.aurea.caonb.egizatullin.und.inspections;
 
-import static com.aurea.caonb.egizatullin.und.commons.CodeInspectionType.UNUSED_PARAMETER;
-
-import com.aurea.caonb.egizatullin.processing.CodeInspectionItem;
 import com.aurea.caonb.egizatullin.und.commons.ICodeInspectionCallback;
 import com.scitools.understand.Database;
 import com.scitools.understand.Entity;
@@ -14,37 +11,18 @@ public class UnusedParameterCodeInspection implements ICodeInspection {
 
     @Override
     public void inspect(Database udb, ICodeInspectionCallback callback) {
-        Set<Integer> implementedMethods = new HashSet<>();
-        {
-            Set<Integer> interfaceIds = new HashSet<>();
-            {
-                Entity[] ents = udb.ents("Interface");
-                for (Entity ent : ents) {
-                    interfaceIds.add(ent.id());
-                }
-            }
-            // 'Unknown' belongs to out-of-project code
-            // 'Unresolved' belongs to 'native' methods
-            Entity[] ents = udb.ents("~Abstract ~Unknown ~Unresolved Method");
-            for (Entity ent : ents) {
-                Reference[] refs = ent.refs(null, "Class", true);
-                if (refs.length > 0) {
-                    Reference declarationRef = refs[0];
-                    Entity parent = declarationRef.ent();
-                    if (!interfaceIds.contains(parent.id())) {
-                        implementedMethods.add(ent.id());
-                    }
-                }
-            }
-        }
+        Set<Integer> checkingMethods = getMethodsToCheck(udb);
 
         Entity[] ents = udb.ents("~Catch Parameter");
         for (Entity ent : ents) {
             Reference[] refs = ent.refs(null, null, false);
             if (refs.length > 0) {
                 Reference declarationRef = refs[0];
+                if ("ArrayListSupplier.java".equals((declarationRef.file().simplename()))) {
+                    declarationRef = declarationRef;
+                }
                 Entity parent = declarationRef.ent();
-                if (implementedMethods.contains(parent.id())) {
+                if (checkingMethods.contains(parent.id())) {
                     boolean isUsed = false;
                     for (int i = 1; i < refs.length; i++) {
                         Reference ref = refs[i];
@@ -66,5 +44,51 @@ public class UnusedParameterCodeInspection implements ICodeInspection {
                 }
             }
         }
+    }
+
+    /**
+     * @param udb 'Understand' database
+     * @return all existing methods except of <ul>
+     *     <li>methods from interfaces</li>
+     *     <li>{@link java.lang.Enum#valueOf(Class, String)}</li>
+     *     <li>{@code T[] java.lang.Enum#values()}</li>
+     * </ul>
+     */
+    private Set<Integer> getMethodsToCheck(Database udb) {
+        Set<Integer> javaInterfaceIds = getEntityIds(udb, "Interface");
+        Set<Integer> javaEnumIds = getEntityIds(udb, "Enum");
+        Set<Integer> result = new HashSet<>();
+        // 'Unknown' belongs to out-of-project code
+        // 'Unresolved' belongs to 'native' methods
+        Entity[] ents = udb.ents("~Abstract ~Unknown ~Unresolved Method");
+        for (Entity ent : ents) {
+            Reference[] refs = ent.refs(null, "Class", true);
+            if (refs.length > 0) {
+                Reference declarationRef = refs[0];
+                Entity parent = declarationRef.ent();
+                if (javaInterfaceIds.contains(parent.id())) {
+                    continue;
+                }
+                if(javaEnumIds.contains(parent.id())) {
+                    if(("valueOf".equals(ent.simplename()))) {
+                        continue;
+                    }
+                    if(("values".equals(ent.simplename()))) {
+                        continue;
+                    }
+                }
+                result.add(ent.id());
+            }
+        }
+        return result;
+    }
+
+    private Set<Integer> getEntityIds(Database udb, String kindName) {
+        Set<Integer> ids = new HashSet<>();
+        Entity[] ents = udb.ents(kindName);
+        for (Entity ent : ents) {
+            ids.add(ent.id());
+        }
+        return ids;
     }
 }
