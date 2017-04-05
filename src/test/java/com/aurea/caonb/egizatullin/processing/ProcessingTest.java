@@ -34,6 +34,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.List;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.InOrder;
@@ -81,7 +82,7 @@ public class ProcessingTest {
         ArgumentCaptor<Collection<ICodeInspectionCallback>> codeInspectionsCaptor =
             ArgumentCaptor.forClass(Collection.class);
         o.verify(us, times(1)).inspectCode(eq(projectDir), codeInspectionsCaptor.capture());
-        Collection<CodeInspectionItem> iis = assertCodeInspectionCollectors(
+        List<CodeInspectionItem> iis = assertCodeInspectionCollectors(
             codeInspectionsCaptor.getValue(), projectDir);
         o.verify(gs).remove(projectDir);
         o.verify(id).addInspections(r.id, iis);
@@ -90,12 +91,12 @@ public class ProcessingTest {
         o.verifyNoMoreInteractions();
     }
 
-    private Collection<CodeInspectionItem> assertCodeInspectionCollectors(
+    private List<CodeInspectionItem> assertCodeInspectionCollectors(
         Collection<ICodeInspectionCallback> actual,
         Path projectDir) {
         assertEquals(3, actual.size());
         Iterator<ICodeInspectionCallback> it = actual.iterator();
-        Collection<CodeInspectionItem> iis = assertCodeInspectionCollector(
+        List<CodeInspectionItem> iis = assertCodeInspectionCollector(
             (CodeInspectionCollector)it.next(), projectDir, UNUSED_METHOD);
         assertSame(iis,  assertCodeInspectionCollector(
             (CodeInspectionCollector)it.next(), projectDir, UNUSED_FIELD));
@@ -104,7 +105,7 @@ public class ProcessingTest {
         return iis;
     }
 
-    private Collection<CodeInspectionItem> assertCodeInspectionCollector(
+    private List<CodeInspectionItem> assertCodeInspectionCollector(
         CodeInspectionCollector cic,
         Path projectDir, CodeInspectionType cit) {
         assertEquals(cic.getCodeInspectionType(), cit);

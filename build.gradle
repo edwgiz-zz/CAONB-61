@@ -47,6 +47,7 @@ dependencies {
     compile group: 'org.springframework', name: 'spring-webmvc', version: '4.3.7.RELEASE'
     compile group: 'org.springframework.boot', name: 'spring-boot-starter', version: '1.5.2.RELEASE'
     compile group: 'org.springframework.boot', name: 'spring-boot-starter-jetty', version: '1.5.2.RELEASE'
+    compile group: 'org.springframework.hateoas', name: 'spring-hateoas', version: '0.23.0.RELEASE'
 
     compile group: 'org.hibernate', name: 'hibernate-validator', version: '5.4.1.Final'
 

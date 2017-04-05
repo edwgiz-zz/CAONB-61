@@ -1,5 +1,11 @@
 package com.aurea.caonb.egizatullin.controllers.impls.inspection;
 
+import static com.aurea.caonb.egizatullin.controllers.commons.pagination.PaginationUtils.PAGE_PARAM_NAME;
+import static com.aurea.caonb.egizatullin.controllers.commons.pagination.PaginationUtils.PER_PAGE_PARAM_NAME;
+import static com.aurea.caonb.egizatullin.controllers.commons.pagination.PaginationUtils.getOffset;
+import static com.aurea.caonb.egizatullin.controllers.commons.pagination.PaginationUtils.paginationHeader;
+import static com.aurea.caonb.egizatullin.controllers.commons.pagination.PaginationUtils.parse;
+import static com.aurea.caonb.egizatullin.utils.http.HttpUtils.addParam;
 import static java.net.HttpURLConnection.HTTP_BAD_REQUEST;
 import static java.net.HttpURLConnection.HTTP_INTERNAL_ERROR;
 import static java.net.HttpURLConnection.HTTP_OK;
@@ -8,13 +14,14 @@ import static org.springframework.http.ResponseEntity.status;
 
 import com.aurea.caonb.egizatullin.controllers.commons.AbstractController;
 import com.aurea.caonb.egizatullin.controllers.commons.AbstractResponse;
+import com.aurea.caonb.egizatullin.controllers.commons.pagination.Pagination;
 import com.aurea.caonb.egizatullin.data.InspectionDao;
 import com.aurea.caonb.egizatullin.processing.CodeInspectionItem;
+import com.aurea.caonb.egizatullin.utils.collection.SubListResult;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
-import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -27,6 +34,9 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping(value = "/inspections", produces = "application/json")
 public class InspectionController extends AbstractController {
 
+    private static final String ID_PARAM_NAME = "id";
+    private static final String FILE_PARAM_NAME = "file";
+
     private final InspectionDao inspectionDao;
 
     @Autowired
@@ -35,7 +45,8 @@ public class InspectionController extends AbstractController {
     }
 
     @ApiOperation(
-        value = "List dead code occurrences by a given github repository id",
+        value = "List dead code occurrences by a given github repository id. ",
+        notes = "Supports pagination in according to rfc5988",
         tags = {"github"})
     @ApiResponses({
         @ApiResponse(code = HTTP_OK, message = "Nice!", response = ListInspectionResponse.class),
@@ -44,10 +55,14 @@ public class InspectionController extends AbstractController {
     @RequestMapping(value = "/repository/{id}", method = RequestMethod.GET)
     public ResponseEntity<ListInspectionResponse> list(
         @ApiParam(value = "Identifier of processed repository ", required = true)
-        @PathVariable("id") String repositoryId,
+        @PathVariable(ID_PARAM_NAME) String repositoryId,
         @ApiParam(value = "Relative path filtering substring",
             example = "src/main/java/com/aurea/caonb/egizatullin/utils/file/RecursiveDeleteFileVisitor.java")
-        @RequestParam(name = "file", required = false) String file
+        @RequestParam(name = FILE_PARAM_NAME, required = false) String file,
+        @ApiParam(value = "Page number", defaultValue = "1")
+        @RequestParam(name = PAGE_PARAM_NAME, required = false) String page,
+        @ApiParam(value = "How many items you want each page to return")
+        @RequestParam(name = PER_PAGE_PARAM_NAME, required = false) String perPage
     ) {
 
         int id;
@@ -57,15 +72,31 @@ public class InspectionController extends AbstractController {
             return badAddRequest("Incorrect repository id");
         }
 
-        List<CodeInspectionItem> inspectionList = inspectionDao.getInspections(
+        Pagination p;
+        try {
+            p = parse(page, perPage);
+        } catch (IllegalArgumentException e) {
+            return status(HTTP_BAD_REQUEST).body(new ListInspectionResponse(e.getMessage(), null));
+        }
+
+        SubListResult<CodeInspectionItem> slr = inspectionDao.getInspections(
             id,
-            trimToNull(file));
-        if (inspectionList == null) {
+            trimToNull(file),
+            getOffset(p),
+            p.perPage);
+        if (slr == null) {
             return badAddRequest("No such repository id");
         }
 
-        return status(HTTP_OK)
-            .body(new ListInspectionResponse(null, inspectionList));
+        p.count = slr.totalSize;
+
+        p.queryBase = new StringBuilder();
+        addParam(p.queryBase, ID_PARAM_NAME, id);
+        addParam(p.queryBase, FILE_PARAM_NAME, file);
+
+        return
+            paginationHeader(status(HTTP_OK), p)
+            .body(new ListInspectionResponse(null, slr.items));
     }
 
     private ResponseEntity<ListInspectionResponse> badAddRequest(String msg) {

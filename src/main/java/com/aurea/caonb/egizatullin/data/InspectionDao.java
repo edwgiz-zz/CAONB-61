@@ -1,6 +1,9 @@
 package com.aurea.caonb.egizatullin.data;
 
+import static com.aurea.caonb.egizatullin.utils.collection.CollectionUtils.subList;
+
 import com.aurea.caonb.egizatullin.processing.CodeInspectionItem;
+import com.aurea.caonb.egizatullin.utils.collection.SubListResult;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -10,7 +13,7 @@ import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 
@@ -48,9 +51,11 @@ public class InspectionDao {
      * @param repositoryId repo id
      * @return inspections in gzip-json format or {@code null}
      */
-    public List<CodeInspectionItem> getInspections(int repositoryId, String file) {
+    public SubListResult<CodeInspectionItem> getInspections(
+        int repositoryId, String file,
+        int offset, int length) {
         byte[] content = inspectionsByRepository.get(repositoryId);
-        if(content == null) {
+        if (content == null) {
             return null;
         }
 
@@ -65,12 +70,11 @@ public class InspectionDao {
                 "Can't deserialize inspection by repository id: " + repositoryId);
         }
 
-        if(file != null) {
-            codeInspectionItems = codeInspectionItems.stream()
-                .filter(e -> e.file.contains(file))
-                .collect(Collectors.toList());
+        Stream<CodeInspectionItem> stream = codeInspectionItems.stream();
+        if (file != null) {
+            stream = stream.filter(e -> e.file.contains(file));
         }
-        return codeInspectionItems;
+        return subList(stream, offset, length);
     }
 
     void removeInspections(int repositoryId) {

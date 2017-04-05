@@ -2,11 +2,12 @@ package com.aurea.caonb.egizatullin.data;
 
 
 import static com.aurea.caonb.egizatullin.data.RepositoryState.ADDED;
+import static com.aurea.caonb.egizatullin.utils.collection.CollectionUtils.subList;
 import static java.util.Collections.singletonList;
 import static java.util.Collections.unmodifiableList;
 import static java.util.Comparator.comparing;
-import static java.util.stream.Collectors.toList;
 
+import com.aurea.caonb.egizatullin.utils.collection.SubListResult;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -39,7 +40,8 @@ public class RepositoryDao {
      * @param commitHash commit hash, can be {@code null}
      * @return repository instance and flag if it was just created
      */
-    public AddRepositoryResult addRepository(String owner, String repo, String branch, String commitHash) {
+    public AddRepositoryResult addRepository(String owner, String repo, String branch,
+        String commitHash) {
         int id = idSequence.getAndIncrement();
         Repository newRepository = new Repository(
             id,
@@ -58,7 +60,7 @@ public class RepositoryDao {
 
     public Repository remove(int id) {
         RepositoryUniqueKey key = repositoryKeys.remove(id);
-        if(key == null) {
+        if (key == null) {
             return null;
         }
         inspectionDao.removeInspections(id);
@@ -81,7 +83,10 @@ public class RepositoryDao {
         });
     }
 
-    public List<Repository> find(String owner, String repo, String branch) {
+    public SubListResult<Repository> find(
+        String owner, String repo, String branch,
+        int offset, int length) {
+
         Stream<Repository> repos = repositories.entrySet().stream()
             .map(Entry::getValue);
         if (owner != null) {
@@ -93,8 +98,8 @@ public class RepositoryDao {
         if (branch != null) {
             repos = repos.filter(e -> e.branch.contains(branch));
         }
-        return repos
-            .sorted(comparing(e -> e.id))
-            .collect(toList());
+        repos = repos.sorted(comparing(e -> e.id));
+
+        return subList(repos, offset, length);
     }
 }

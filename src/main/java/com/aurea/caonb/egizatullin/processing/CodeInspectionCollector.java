@@ -3,14 +3,14 @@ package com.aurea.caonb.egizatullin.processing;
 import com.aurea.caonb.egizatullin.und.commons.CodeInspectionType;
 import com.aurea.caonb.egizatullin.und.commons.ICodeInspectionCallback;
 import java.nio.file.Paths;
-import java.util.Collection;
+import java.util.List;
 
 
 public class CodeInspectionCollector implements ICodeInspectionCallback {
 
     private final int projectPathDepth;
     private final CodeInspectionType type;
-    private final Collection<CodeInspectionItem> inspectionItems;
+    private final List<CodeInspectionItem> inspectionItems;
 
     /**
      * @param projectPathDepth will be used to convert absolute paths from 'Understand' database to
@@ -21,7 +21,7 @@ public class CodeInspectionCollector implements ICodeInspectionCallback {
     public CodeInspectionCollector(
         int projectPathDepth,
         CodeInspectionType type,
-        Collection<CodeInspectionItem> inspectionItems) {
+        List<CodeInspectionItem> inspectionItems) {
         this.projectPathDepth = projectPathDepth;
         this.type = type;
         this.inspectionItems = inspectionItems;
@@ -52,7 +52,7 @@ public class CodeInspectionCollector implements ICodeInspectionCallback {
         return projectPathDepth;
     }
 
-    Collection<CodeInspectionItem> getInspectionItems() {
+    List<CodeInspectionItem> getInspectionItems() {
         return inspectionItems ;
     }
 }
