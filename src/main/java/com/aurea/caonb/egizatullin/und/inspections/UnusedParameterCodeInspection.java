@@ -1,5 +1,6 @@
 package com.aurea.caonb.egizatullin.und.inspections;
 
+import com.aurea.caonb.egizatullin.und.UndUtils;
 import com.aurea.caonb.egizatullin.und.commons.ICodeInspectionCallback;
 import com.scitools.understand.Database;
 import com.scitools.understand.Entity;
@@ -8,6 +9,14 @@ import java.util.HashSet;
 import java.util.Set;
 
 public class UnusedParameterCodeInspection implements ICodeInspection {
+
+    private final Set<Integer> javaEnumIds;
+
+    public UnusedParameterCodeInspection(Set<Integer> javaEnumIds) {
+        this.javaEnumIds = javaEnumIds;
+    }
+
+
 
     @Override
     public void inspect(Database udb, ICodeInspectionCallback callback) {
@@ -52,8 +61,7 @@ public class UnusedParameterCodeInspection implements ICodeInspection {
      * </ul>
      */
     private Set<Integer> getMethodsToCheck(Database udb) {
-        Set<Integer> javaInterfaceIds = getEntityIds(udb, "Interface");
-        Set<Integer> javaEnumIds = getEntityIds(udb, "Enum");
+        Set<Integer> javaInterfaceIds = UndUtils.getEntityIds(udb, "Interface");
         Set<Integer> result = new HashSet<>();
         // 'Unknown' belongs to out-of-project code
         // 'Unresolved' belongs to 'native' methods
@@ -80,12 +88,4 @@ public class UnusedParameterCodeInspection implements ICodeInspection {
         return result;
     }
 
-    private Set<Integer> getEntityIds(Database udb, String kindName) {
-        Set<Integer> ids = new HashSet<>();
-        Entity[] ents = udb.ents(kindName);
-        for (Entity ent : ents) {
-            ids.add(ent.id());
-        }
-        return ids;
-    }
 }

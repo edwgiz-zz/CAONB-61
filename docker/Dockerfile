@@ -29,7 +29,7 @@ RUN rm -f Understand-4.0.882-Linux-64bit.tgz
 RUN mv scitools und
 ENV PATH $PATH:/usr/lib/scitools/und/bin/linux64:/usr/lib/scitools/und/bin/linux64/Java
 RUN apt-get install -y libglib2.0-0 libxtst6 libxrender1 libxi6
-RUN echo '* 3A82C9D4EA7F # any' > /usr/lib/scitools/und/conf/license/users.txt
+RUN echo '* C0FF24A90702 # any' > /usr/lib/scitools/und/conf/license/users.txt
 RUN rm -rf /usr/lib/scitools/und/doc && \
     rm -rf /usr/lib/scitools/und/scripts && \
     rm -rf /usr/lib/scitools/und/bin/linux64/buildspy && \
@@ -50,6 +50,7 @@ COPY api.jar .
 EXPOSE 22 80 17963
 
 ENTRYPOINT ["java", \
+  "-Xmx512m", \
   "-server", \
   "-Dcom.sun.management.jmxremote", \
   "-Dcom.sun.management.jmxremote.port=17963", \

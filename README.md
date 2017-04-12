@@ -14,6 +14,8 @@ RUN ssh-keygen -f ~/.ssh/id_rsa -N ''
 RUN cp ~/.ssh/id_rsa.pub ~/.ssh/authorized_keys
 
 ENTRYPOINT service ssh restart && echo $PATH > /root/path.txt && sleep 1d
+
+export PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/lib/java/jdk1.8.0_121/jre/bin:/usr/lib/java/jdk1.8.0_121/jre/lib/amd64:/usr/lib/scitools/und/bin/linux64:/usr/lib/scitools/und/bin/linux64/Java
 ```
 
 # Deploy
@@ -34,4 +36,6 @@ docker -H tcp://webserver.devfactory.com service rm egizatullin
 docker -H tcp://webserver.devfactory.com service create -p 17962:22 -p 17961:80 -p 17963:17963 --name egizatullin --replicas 1 --limit-memory=1G registry2.swarm.devfactory.com/devfactory/egizatullin:0.2
 
 docker -H tcp://webserver.devfactory.com service ls -f name=egizatullin
+
+docker -H tcp://webserver.devfactory.com service ps --no-trunc egizatullin
 ```

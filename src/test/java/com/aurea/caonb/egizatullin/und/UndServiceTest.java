@@ -1,6 +1,6 @@
 package com.aurea.caonb.egizatullin.und;
 
-import static com.aurea.caonb.egizatullin.und.commons.CodeInspectionType.UNUSED_PARAMETER;
+import static com.aurea.caonb.egizatullin.und.commons.CodeInspectionType.UNUSED_FIELD;
 
 import com.aurea.caonb.egizatullin.processing.CodeInspectionCollector;
 import com.aurea.caonb.egizatullin.processing.CodeInspectionItem;
@@ -17,7 +17,7 @@ public class UndServiceTest {
     @Test
     @Ignore
     public void testCreate() throws Exception {
-        Path p = Paths.get("e:/workdir/github/RxJava-2.x");
+        Path p = Paths.get("C:/Projects/commons-io");
         UndService s = new UndService("c:/Program Files/SciTools/bin/pc-win64/und.exe");
         s.buildDatabase(p);
     }
@@ -26,15 +26,12 @@ public class UndServiceTest {
     @Ignore
     public void testCodeChesk() throws Exception {
         UndService s = new UndService("c:/Program Files/SciTools/bin/pc-win64/und.exe");
-        Path p = Paths.get("e:/workdir/github/RxJava-2.x");
+        Path p = Paths.get("C:/Projects/commons-io");
 
         ArrayList<CodeInspectionItem> inspectionItems = new ArrayList<>();
         {
             List<ICodeInspectionCallback> cics = new ArrayList<>();
-//            cics.add(new CodeInspectionCollector(p.getNameCount(), UNUSED_METHOD, inspectionItems));
-//            cics.add(new CodeInspectionCollector(p.getNameCount(), UNUSED_FIELD, inspectionItems));
-            cics.add(
-                new CodeInspectionCollector(p.getNameCount(), UNUSED_PARAMETER, inspectionItems));
+            cics.add(new CodeInspectionCollector(p.getNameCount(), UNUSED_FIELD, inspectionItems));
             s.inspectCode(p, cics);
         }
     }

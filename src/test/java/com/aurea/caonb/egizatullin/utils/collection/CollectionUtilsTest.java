@@ -17,19 +17,19 @@ public class CollectionUtilsTest {
     public void testSubList() throws Exception {
         List<Integer> fullList = asList(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15);
 
-        assertEquals(asList(1, 2, 3, 4, 5, 6, 7, 8, 9, 10),
-            subList(fullList.stream(), 0, 10, fullList.size()));
-        assertEquals(asList(11, 12, 13, 14, 15),
-            subList(fullList.stream(), 10, 10, fullList.size()));
-        assertEquals(emptyList(),
-            subList(fullList.stream(), 20, 10, fullList.size()));
+        testSubList(fullList, 0, 10, asList(1, 2, 3, 4, 5, 6, 7, 8, 9, 10));
+        testSubList(fullList, 10, 10, asList(11, 12, 13, 14, 15));
+        testSubList(fullList, 20, 10, emptyList());
+        testSubList(fullList, 0, 7, asList(1, 2, 3, 4, 5, 6, 7));
+        testSubList(fullList, 7, 7, asList(8, 9, 10, 11, 12, 13, 14));
+        testSubList(fullList, 14, 7, singletonList(15));
 
-        assertEquals(asList(1, 2, 3, 4, 5, 6, 7),
-            subList(fullList.stream(), 0, 7, fullList.size()));
-        assertEquals(asList(8, 9, 10, 11, 12, 13, 14),
-            subList(fullList.stream(), 7, 7, fullList.size()));
-        assertEquals(singletonList(15),
-            subList(fullList.stream(), 14, 7, fullList.size()));
+    }
 
+    private void testSubList(List<Integer> fullList, int offset, int length, List<Integer> expected) {
+        SubListResult<Integer> actual = subList(fullList.stream(), offset, length);
+        assertEquals(fullList.size(), actual.totalSize);
+        assertEquals(expected,
+            actual.items);
     }
 }

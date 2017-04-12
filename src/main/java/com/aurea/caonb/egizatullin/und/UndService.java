@@ -1,13 +1,17 @@
 package com.aurea.caonb.egizatullin.und;
 
+import static com.aurea.caonb.egizatullin.und.UndUtils.getEntityIds;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.nio.file.Files.exists;
 import static java.nio.file.Files.newBufferedWriter;
 import static java.nio.file.Files.walkFileTree;
 import static java.nio.file.StandardOpenOption.CREATE_NEW;
+import static java.util.Arrays.asList;
+import static java.util.Collections.singletonList;
 
 import com.aurea.caonb.egizatullin.und.commons.ICodeInspectionCallback;
 import com.aurea.caonb.egizatullin.und.inspections.ICodeInspection;
+import com.aurea.caonb.egizatullin.und.inspections.UnusedEnumConstantCodeInspection;
 import com.aurea.caonb.egizatullin.und.inspections.UnusedFieldCodeInspection;
 import com.aurea.caonb.egizatullin.und.inspections.UnusedMethodCodeInspection;
 import com.aurea.caonb.egizatullin.und.inspections.UnusedParameterCodeInspection;
@@ -19,6 +23,8 @@ import java.io.BufferedWriter;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.Collection;
+import java.util.List;
+import java.util.Set;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -67,9 +73,13 @@ public class UndService {
         Path udbPath = p.resolve(UDB_FILE_NAME);
         try {
             Database udb = Understand.open(udbPath.toString());
+            Set<Integer> javaEnumIds = getEntityIds(udb, "Enum");
             try {
                 for (ICodeInspectionCallback cic : collectors) {
-                    getCodeInspection(cic).inspect(udb, cic);
+                    List<ICodeInspection> cis = getCodeInspection(cic, javaEnumIds);
+                    for (ICodeInspection ci : cis) {
+                        ci.inspect(udb, cic);
+                    }
                 }
             } finally {
                 udb.close();
@@ -81,17 +91,21 @@ public class UndService {
 
     /**
      * Factory method
+     *
      * @param cic code inspection callback
      * @return code inspection instance
      */
-    ICodeInspection getCodeInspection(ICodeInspectionCallback cic) {
+    List<ICodeInspection> getCodeInspection(ICodeInspectionCallback cic,
+        Set<Integer> javaEnumIds) {
         switch (cic.getCodeInspectionType()) {
             case UNUSED_METHOD:
-                return new UnusedMethodCodeInspection();
+                return singletonList(new UnusedMethodCodeInspection(javaEnumIds));
             case UNUSED_FIELD:
-                return new UnusedFieldCodeInspection();
+                return asList(
+                    new UnusedFieldCodeInspection(),
+                    new UnusedEnumConstantCodeInspection());
             case UNUSED_PARAMETER:
-                return new UnusedParameterCodeInspection();
+                return singletonList(new UnusedParameterCodeInspection(javaEnumIds));
             default:
                 throw new IllegalArgumentException(cic.toString()
                     + " has unsupported inspection type: " + cic.getCodeInspectionType());
