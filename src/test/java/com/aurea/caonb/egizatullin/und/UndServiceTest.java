@@ -1,6 +1,6 @@
 package com.aurea.caonb.egizatullin.und;
 
-import static com.aurea.caonb.egizatullin.und.commons.CodeInspectionType.UNUSED_FIELD;
+import static com.aurea.caonb.egizatullin.und.commons.CodeInspectionType.UNUSED_VARIABLE;
 
 import com.aurea.caonb.egizatullin.processing.CodeInspectionCollector;
 import com.aurea.caonb.egizatullin.processing.CodeInspectionItem;
@@ -31,7 +31,7 @@ public class UndServiceTest {
         ArrayList<CodeInspectionItem> inspectionItems = new ArrayList<>();
         {
             List<ICodeInspectionCallback> cics = new ArrayList<>();
-            cics.add(new CodeInspectionCollector(p.getNameCount(), UNUSED_FIELD, inspectionItems));
+            cics.add(new CodeInspectionCollector(p.getNameCount(), UNUSED_VARIABLE, inspectionItems));
             s.inspectCode(p, cics);
         }
     }

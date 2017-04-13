@@ -15,6 +15,7 @@ import com.aurea.caonb.egizatullin.und.inspections.UnusedEnumConstantCodeInspect
 import com.aurea.caonb.egizatullin.und.inspections.UnusedFieldCodeInspection;
 import com.aurea.caonb.egizatullin.und.inspections.UnusedMethodCodeInspection;
 import com.aurea.caonb.egizatullin.und.inspections.UnusedParameterCodeInspection;
+import com.aurea.caonb.egizatullin.und.inspections.UnusedVariableCodeInspection;
 import com.aurea.caonb.egizatullin.utils.process.ProcessUtils;
 import com.scitools.understand.Database;
 import com.scitools.understand.Understand;
@@ -100,6 +101,8 @@ public class UndService {
         switch (cic.getCodeInspectionType()) {
             case UNUSED_METHOD:
                 return singletonList(new UnusedMethodCodeInspection(javaEnumIds));
+            case UNUSED_VARIABLE:
+                return singletonList(new UnusedVariableCodeInspection());
             case UNUSED_FIELD:
                 return asList(
                     new UnusedFieldCodeInspection(),

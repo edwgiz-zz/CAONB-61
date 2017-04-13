@@ -4,6 +4,7 @@ package com.aurea.caonb.egizatullin.processing;
 import static com.aurea.caonb.egizatullin.und.commons.CodeInspectionType.UNUSED_FIELD;
 import static com.aurea.caonb.egizatullin.und.commons.CodeInspectionType.UNUSED_METHOD;
 import static com.aurea.caonb.egizatullin.und.commons.CodeInspectionType.UNUSED_PARAMETER;
+import static com.aurea.caonb.egizatullin.und.commons.CodeInspectionType.UNUSED_VARIABLE;
 import static org.slf4j.LoggerFactory.getLogger;
 
 import com.aurea.caonb.egizatullin.data.InspectionDao;
@@ -67,6 +68,7 @@ class Processing implements Runnable {
         undService.inspectCode(projectDir, Arrays.asList(
             new CodeInspectionCollector(projectDirDepth, UNUSED_METHOD, inspectionItems),
             new CodeInspectionCollector(projectDirDepth, UNUSED_FIELD, inspectionItems),
+            new CodeInspectionCollector(projectDirDepth, UNUSED_VARIABLE, inspectionItems),
             new CodeInspectionCollector(projectDirDepth, UNUSED_PARAMETER, inspectionItems)
         ));
         LOG.info("'Understand' code inspection completed");
