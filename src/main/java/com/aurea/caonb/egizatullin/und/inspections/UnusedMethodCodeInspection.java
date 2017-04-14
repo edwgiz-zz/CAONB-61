@@ -30,7 +30,7 @@ public class UnusedMethodCodeInspection implements ICodeInspection {
         for (Entity ent : ents) {
             boolean hasRefs = isNotEmpty(ent.refs("Callby", null, true));
             if (!hasRefs) {
-                Reference refToParent = ent.refs("Definein", "Class", true)[0];
+                Reference refToParent = ent.refs("Definein", null, true)[0];
                 Entity parent = refToParent.ent();
                 if (isIgnored(ent, parent)) {
                     continue;

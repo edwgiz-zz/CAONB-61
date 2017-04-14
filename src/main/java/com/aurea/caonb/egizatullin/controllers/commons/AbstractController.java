@@ -20,7 +20,11 @@ public abstract class AbstractController {
     @ExceptionHandler(Exception.class)
     public ResponseEntity<AbstractResponse> exception(Exception e) {
         LOG.error(e.getMessage(), e);
+        String msg = e instanceof RuntimeException
+            ? e.getClass().getSimpleName() + ": " + e.getMessage() :
+            e.getMessage();
+
         return status(HTTP_INTERNAL_ERROR).body(new ErrorResponse(
-            defaultString(e.getMessage(), HTTP_INTERNAL_ERROR_MESSAGE)));
+            defaultString(msg, HTTP_INTERNAL_ERROR_MESSAGE)));
     }
 }
