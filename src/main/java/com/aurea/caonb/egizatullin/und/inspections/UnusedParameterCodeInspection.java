@@ -5,6 +5,7 @@ import com.aurea.caonb.egizatullin.und.commons.ICodeInspectionCallback;
 import com.scitools.understand.Database;
 import com.scitools.understand.Entity;
 import com.scitools.understand.Reference;
+
 import java.util.HashSet;
 import java.util.Set;
 
@@ -22,31 +23,16 @@ public class UnusedParameterCodeInspection implements ICodeInspection {
     public void inspect(Database udb, ICodeInspectionCallback callback) {
         Set<Integer> checkingMethods = getMethodsToCheck(udb);
 
-        Entity[] ents = udb.ents("~Catch Parameter");
+        Entity[] ents = udb.ents("Parameter");
         for (Entity ent : ents) {
-            Reference[] refs = ent.refs(null, null, false);
-            if (refs.length > 0) {
-                Reference declarationRef = refs[0];
-                Entity parent = declarationRef.ent();
+            Reference[] refs = ent.refs("Java Useby", null, false);
+            if (refs.length == 0) {
+                Reference declaration = ent.refs("Definein", null, false)[0];
+                Entity parent = declaration.ent();
                 if (checkingMethods.contains(parent.id())) {
-                    boolean isUsed = false;
-                    for (int i = 1; i < refs.length; i++) {
-                        Reference ref = refs[i];
-                        if (ref.ent().id() == parent.id()) {
-                            // reference to parameter is
-                            // into same method/constructor as parameter declaration
-                            isUsed = true;
-                            break;
-                        }
-                    }
-                    if (!isUsed) {
-                        callback.accept(
-                            declarationRef.file().longname(false),
-                            declarationRef.line(),
-                            declarationRef.column(),
-                            ent.name()
-                        );
-                    }
+                    Entity file = declaration.file();
+                    callback.accept(file.longname(false), declaration.line(), declaration.column(),
+                            ent.name());
                 }
             }
         }
@@ -85,7 +71,19 @@ public class UnusedParameterCodeInspection implements ICodeInspection {
                 result.add(ent.id());
             }
         }
+
+        excludeOverriddenMethods(udb, result);
+
         return result;
+    }
+
+    private void excludeOverriddenMethods(Database udb, Set<Integer> result) {
+        for (Entity ent : udb.ents("Abstract Method")) {
+            Reference[] refs = ent.refs("Java Overrideby", null, false);
+            for (Reference ref : refs) {
+                result.remove(ref.ent().id());
+            }
+        }
     }
 
 }

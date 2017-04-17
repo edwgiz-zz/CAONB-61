@@ -1,16 +1,17 @@
 package com.aurea.caonb.egizatullin.und;
 
-import static com.aurea.caonb.egizatullin.und.commons.CodeInspectionType.UNUSED_VARIABLE;
-
 import com.aurea.caonb.egizatullin.processing.CodeInspectionCollector;
 import com.aurea.caonb.egizatullin.processing.CodeInspectionItem;
 import com.aurea.caonb.egizatullin.und.commons.ICodeInspectionCallback;
+import org.junit.Ignore;
+import org.junit.Test;
+
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
-import org.junit.Ignore;
-import org.junit.Test;
+
+import static com.aurea.caonb.egizatullin.und.commons.CodeInspectionType.UNUSED_VARIABLE;
 
 public class UndServiceTest {
 
@@ -26,7 +27,7 @@ public class UndServiceTest {
     @Ignore
     public void testCodeChesk() throws Exception {
         UndService s = new UndService("c:/Program Files/SciTools/bin/pc-win64/und.exe");
-        Path p = Paths.get("C:/Projects/commons-io");
+        Path p = Paths.get("c:/Projects/ReactiveX-RxJava-434d1f4");
 
         ArrayList<CodeInspectionItem> inspectionItems = new ArrayList<>();
         {

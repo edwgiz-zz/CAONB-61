@@ -1,16 +1,17 @@
 package com.aurea.caonb.egizatullin.und.inspections;
 
-import static org.apache.commons.lang3.ArrayUtils.isNotEmpty;
-
 import com.aurea.caonb.egizatullin.und.commons.ICodeInspectionCallback;
 import com.scitools.understand.Database;
 import com.scitools.understand.Entity;
 import com.scitools.understand.Kind;
 import com.scitools.understand.Reference;
+import org.apache.commons.lang3.StringUtils;
+
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
-import org.apache.commons.lang3.StringUtils;
+
+import static org.apache.commons.lang3.ArrayUtils.isNotEmpty;
 
 
 public class UnusedMethodCodeInspection implements ICodeInspection {
@@ -65,12 +66,10 @@ public class UnusedMethodCodeInspection implements ICodeInspection {
             }
         }
 
+        //noinspection RedundantIfStatement
         if (StringUtils.contains(constructorKind(ent), "Private")) {
-            // is Utils constructor
-            String parentName = parent.simplename();
-            if (parentName.endsWith("Util") || parentName.endsWith("Utils")) {
-                return true;
-            }
+            // is private constructor
+            return true;
         }
 
         return false;
